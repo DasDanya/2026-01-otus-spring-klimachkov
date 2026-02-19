@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="ioService" class="ru.klimachkov.hw.service.StreamsIOService">
+        <constructor-arg index="0">
+            <util:constant static-field="java.lang.System.out"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="testFileNameProvider" class="ru.klimachkov.hw.config.AppProperties">
+        <constructor-arg value="ru/klimachkov/hw/questions.csv"/>
+    </bean>
+
+    <bean id="readerProvider" class="ru.klimachkov.hw.io.InputStreamReaderProvider"/>
+
+    <bean id="questionDao" class="ru.klimachkov.hw.dao.CsvQuestionDao">
+        <constructor-arg index="0" ref="testFileNameProvider"/>
+        <constructor-arg index="1" ref="readerProvider"/>
+    </bean>
+
+    <bean id="testService" class="ru.klimachkov.hw.service.TestServiceImpl">
+        <constructor-arg index="0" ref="ioService"/>
+        <constructor-arg index="1" ref="questionDao"/>
+    </bean>
+
+    <bean id="testRunnerService" class="ru.klimachkov.hw.service.TestRunnerServiceImpl">
+        <constructor-arg ref="testService"/>
+    </bean>
+
+</beans>
