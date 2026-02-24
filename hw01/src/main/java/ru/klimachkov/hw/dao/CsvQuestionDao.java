@@ -11,7 +11,6 @@ import ru.klimachkov.hw.io.ReaderProvider;
 
 import java.io.Reader;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class CsvQuestionDao implements QuestionDao {
@@ -31,7 +30,7 @@ public class CsvQuestionDao implements QuestionDao {
 
             return csvToBean.stream()
                     .map(QuestionDto::toDomainObject)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (Exception e) {
             throw new QuestionReadException("Failed to read questions", e);
         }
