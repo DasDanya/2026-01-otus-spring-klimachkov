@@ -48,18 +48,14 @@ public class TestServiceImpl implements TestService {
     }
 
     private String getQuestionWithAnswers(Question question, int questionNumber) {
-        StringBuilder questionWithAnswersBuilder = new StringBuilder();
-        questionWithAnswersBuilder.append(questionNumber)
-                .append(".")
-                .append(question.text())
-                .append("\n");
+        StringBuilder questionWithAnswersBuilder = new StringBuilder(
+                "%d. %s\n".formatted(questionNumber, question.text())
+        );
 
         IntStream.range(0, question.answers().size()).forEach(answerIndex ->
-                questionWithAnswersBuilder.append("\t")
-                        .append(answerIndex + 1)
-                        .append(".")
-                        .append(question.answers().get(answerIndex).text())
-                        .append("\n")
+                questionWithAnswersBuilder.append(
+                        "\t%d. %s\n".formatted(answerIndex + 1, question.answers().get(answerIndex).text())
+                )
         );
 
         return questionWithAnswersBuilder.toString();
