@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: Homework 03
+    version: 1.0.0
+  messages:
+    baseName: ru/klimachkov/hw/messages
+    encoding: UTF-8
+    fallbackToSystemLocale: false
+test:
+  rightAnswersCountToPass: 3
+  locale: en-US
+  fileNameByLocaleTag:
+    ru-RU: ru/klimachkov/hw/questions_ru.csv
+    en-US: ru/klimachkov/hw/questions.csv
