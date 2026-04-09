@@ -1,0 +1,9 @@
+${AnsiColor.GREEN}
+    __  ___       __   ____  __ __
+   / / / / |     / /  / __ \/ // /
+  / /_/ /| | /| / /  / / / / // /_
+ / __  / | |/ |/ /  / /_/ /__  __/
+/_/ /_/  |__/|__/   \____/  /_/
+
+${AnsiColor.MAGENTA}Application: ${spring.application.name} ${spring.application.version}
+${AnsiColor.YELLOW}Powered by Spring Boot ${spring-boot.version}
