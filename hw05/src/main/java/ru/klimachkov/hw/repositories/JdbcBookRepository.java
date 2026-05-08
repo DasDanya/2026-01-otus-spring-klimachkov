@@ -15,7 +15,6 @@ import ru.klimachkov.hw.models.Genre;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -64,9 +63,9 @@ public class JdbcBookRepository implements BookRepository {
         Book book = jdbc.query(
                 "SELECT book_id, title AS book_title, author_id, full_name, genre_id, name AS genre_name " +
                         "FROM books_genres " +
-                        "JOIN genres g ON genre_id = g.id " +
-                        "JOIN books b ON book_id = b.id " +
-                        "JOIN authors a ON author_id = a.id " +
+                        "INNER JOIN genres g ON genre_id = g.id " +
+                        "INNER JOIN books b ON book_id = b.id " +
+                        "INNER JOIN authors a ON author_id = a.id " +
                         "WHERE book_id = :book_id",
                 Collections.singletonMap("book_id", id), BOOK_RESULT_SET_EXTRACTOR);
 
@@ -85,7 +84,8 @@ public class JdbcBookRepository implements BookRepository {
 
     private List<Book> getAllBooksWithoutGenres() {
         return jdbc.query(
-                "SELECT b.id, b.title, b.author_id, a.full_name FROM books b JOIN authors a ON b.author_id = a.id",
+                "SELECT b.id, b.title, b.author_id, a.full_name FROM books b " +
+                        "INNER JOIN authors a ON b.author_id = a.id",
                 BOOK_AUTHOR_ROW_MAPPER);
     }
 
@@ -99,14 +99,12 @@ public class JdbcBookRepository implements BookRepository {
             List<BookGenreRelation> relations
     ) {
         Map<Long, Genre> genresMap = genres.stream().collect(Collectors.toMap(Genre::getId, Function.identity()));
-
-        Map<Long, List<Genre>> bookGenres = new HashMap<>();
-        relations.forEach(relation -> {
-            Genre genre = genresMap.get(relation.genreId());
-            if (genre != null) {
-                bookGenres.computeIfAbsent(relation.bookId(), k -> new ArrayList<>()).add(genre);
-            }
-        });
+        Map<Long, List<Genre>> bookGenres = relations.stream()
+                .filter(relation -> genresMap.containsKey(relation.genreId))
+                .collect(Collectors.groupingBy(
+                                BookGenreRelation::bookId,
+                                Collectors.mapping(relation -> genresMap.get(relation.genreId), Collectors.toList()))
+                );
 
         booksWithoutGenres.forEach(book -> book.setGenres(bookGenres.getOrDefault(book.getId(), new ArrayList<>())));
     }
