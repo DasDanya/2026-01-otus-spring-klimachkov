@@ -1,6 +1,5 @@
 package ru.klimachkov.hw.repositories;
 
-import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -24,7 +23,10 @@ public class JpaCommentaryRepository implements CommentaryRepository {
     @Override
     public Optional<Commentary> findById(long id) {
         Commentary commentary = entityManager.find(
-                Commentary.class, id, Map.of(SpecHints.HINT_SPEC_LOAD_GRAPH, getCommentaryEntityGraph()));
+                Commentary.class,
+                id,
+                Map.of(SpecHints.HINT_SPEC_LOAD_GRAPH,
+                        entityManager.getEntityGraph("commentary-entity-graph")));
 
         if (commentary != null) {
             initializeGenres(commentary);
@@ -38,7 +40,8 @@ public class JpaCommentaryRepository implements CommentaryRepository {
         TypedQuery<Commentary> query = entityManager.createQuery(
                 "SELECT c FROM Commentary c WHERE c.book.id = :bookId", Commentary.class);
         query.setParameter("bookId", bookId);
-        query.setHint(SpecHints.HINT_SPEC_LOAD_GRAPH, getCommentaryEntityGraph());
+        query.setHint(SpecHints.HINT_SPEC_LOAD_GRAPH,
+                entityManager.getEntityGraph("commentary-entity-graph"));
 
         List<Commentary> commentaries = query.getResultList();
         if (!commentaries.isEmpty()) {
@@ -46,14 +49,6 @@ public class JpaCommentaryRepository implements CommentaryRepository {
         }
 
         return commentaries;
-    }
-
-    private void initializeGenres(Commentary commentary) {
-        Hibernate.initialize(commentary.getBook().getGenres());
-    }
-
-    private EntityGraph<?> getCommentaryEntityGraph() {
-        return entityManager.getEntityGraph("commentary-entity-graph");
     }
 
     @Override
@@ -70,5 +65,9 @@ public class JpaCommentaryRepository implements CommentaryRepository {
     public void deleteById(long id) {
         Commentary commentaryRef = entityManager.getReference(Commentary.class, id);
         entityManager.remove(commentaryRef);
+    }
+
+    private void initializeGenres(Commentary commentary) {
+        Hibernate.initialize(commentary.getBook().getGenres());
     }
 }

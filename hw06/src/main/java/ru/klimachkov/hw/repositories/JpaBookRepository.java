@@ -1,6 +1,5 @@
 package ru.klimachkov.hw.repositories;
 
-import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -22,20 +21,17 @@ public class JpaBookRepository implements BookRepository {
 
     @Override
     public Optional<Book> findById(long id) {
-        Book book = entityManager.find(Book.class, id, Map.of(SpecHints.HINT_SPEC_LOAD_GRAPH, getBookEntityGraph()));
+        Book book = entityManager.find(Book.class, id,
+                Map.of(SpecHints.HINT_SPEC_LOAD_GRAPH, entityManager.getEntityGraph("book-entity-graph")));
         return Optional.ofNullable(book);
     }
 
     @Override
     public List<Book> findAll() {
         TypedQuery<Book> query = entityManager.createQuery("SELECT b FROM Book b", Book.class);
-        query.setHint(SpecHints.HINT_SPEC_LOAD_GRAPH, getBookEntityGraph());
+        query.setHint(SpecHints.HINT_SPEC_LOAD_GRAPH, entityManager.getEntityGraph("book-entity-graph"));
 
         return query.getResultList();
-    }
-
-    private EntityGraph<?> getBookEntityGraph() {
-        return entityManager.getEntityGraph("book-entity-graph");
     }
 
     @Override
