@@ -18,7 +18,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.BatchSize;
 
 import java.util.List;
 
@@ -44,7 +43,6 @@ public class Book {
     @JoinColumn(name = "author_id")
     private Author author;
 
-    @BatchSize(size = 20)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @ManyToMany
