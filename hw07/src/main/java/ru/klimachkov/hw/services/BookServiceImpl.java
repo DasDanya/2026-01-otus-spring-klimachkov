@@ -1,6 +1,7 @@
 package ru.klimachkov.hw.services;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -29,13 +30,19 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Book> findById(long id) {
-        return bookRepository.findById(id);
+        Optional<Book> book = bookRepository.findById(id);
+        book.ifPresent(this::initializeGenres);
+        return book;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Book> findAll() {
-        return bookRepository.findAll();
+        List<Book> books = bookRepository.findAll();
+        if (!books.isEmpty())  {
+            initializeGenres(books.get(0));
+        }
+        return books;
     }
 
     @Override
@@ -70,5 +77,9 @@ public class BookServiceImpl implements BookService {
         }
 
         return bookRepository.save(new Book(id, title, author, genres));
+    }
+
+    private void initializeGenres(Book book) {
+        Hibernate.initialize(book.getGenres());
     }
 }

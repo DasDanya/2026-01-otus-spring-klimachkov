@@ -1,7 +1,8 @@
 package ru.klimachkov.hw.repositories;
 
-import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.query.Param;
 import ru.klimachkov.hw.models.Book;
 
 import java.util.List;
@@ -10,10 +11,10 @@ import java.util.Optional;
 public interface BookRepository extends ListCrudRepository<Book, Long> {
 
    @Override
-   @EntityGraph(value = "book-entity-graph", type = EntityGraph.EntityGraphType.LOAD)
+   @Query("SELECT b FROM Book b LEFT JOIN FETCH b.author")
    List<Book> findAll();
 
    @Override
-   @EntityGraph(value = "book-entity-graph", type = EntityGraph.EntityGraphType.LOAD)
-   Optional<Book> findById(Long id);
+   @Query("SELECT b FROM Book b LEFT JOIN FETCH b.author WHERE b.id = :id")
+   Optional<Book> findById(@Param("id") Long id);
 }

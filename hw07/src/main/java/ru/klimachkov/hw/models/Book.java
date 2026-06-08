@@ -10,14 +10,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.util.List;
 
@@ -26,9 +26,6 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "books")
-@NamedEntityGraph(name = "book-entity-graph", attributeNodes = {
-    @NamedAttributeNode("author"), @NamedAttributeNode(value = "genres")}
-)
 public class Book {
 
     @Id
@@ -46,6 +43,7 @@ public class Book {
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @Fetch(FetchMode.SUBSELECT)
     @ManyToMany
     @JoinTable(name = "books_genres", joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))

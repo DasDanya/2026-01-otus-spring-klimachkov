@@ -58,14 +58,16 @@ public class CommentaryServiceImpl implements CommentaryService {
         commentaryRepository.deleteById(id);
     }
 
-    private void initializeGenres(Commentary commentary) {
-        Hibernate.initialize(commentary.getBook().getGenres());
-    }
-
     private Commentary save(long id, String text, long bookId) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book with id %d not found".formatted(bookId)));
 
-        return commentaryRepository.save(new Commentary(id, text, book));
+        Commentary commentary = commentaryRepository.save(new Commentary(id, text, book));
+        initializeGenres(commentary);
+        return commentary;
+    }
+
+    private void initializeGenres(Commentary commentary) {
+        Hibernate.initialize(commentary.getBook().getGenres());
     }
 }
