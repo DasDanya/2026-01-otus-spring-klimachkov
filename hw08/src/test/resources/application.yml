@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: Homework 08
+    version: 1.0.0
+  data:
+    mongodb:
+      port: 0
+      database: testdb
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 7.0.15
+mongock:
+  enabled: false

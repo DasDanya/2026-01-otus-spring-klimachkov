@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: Homework 08
+    version: 1.0.0
+  shell:
+    command:
+      version:
+        enabled: false
+    interactive:
+      enabled: true
+  data:
+    mongodb:
+      port: 0
+      database: maindb
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 7.0.15
+mongock:
+  migration-scan-package:
+    - ru.klimachkov.hw.mongock.changeunit
+  runner-type: initializingbean
