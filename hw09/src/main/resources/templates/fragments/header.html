@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <header th:fragment="header">
+        <div class="header-container">
+            <div class="logo">
+                <a th:href="@{/}" class="logo-link">Library</a>
+            </div>
+            <nav class="nav-menu">
+                <a th:href="@{/authors}" class="nav-link">Authors</a>
+                <a th:href="@{/genres}" class="nav-link">Genres</a>
+            </nav>
+        </div>
+    </header>
+</body>
+</html>

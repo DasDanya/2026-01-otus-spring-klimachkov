@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all genres</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="main">
+    <h1>Genres</h1>
+        <table>
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="genre : ${genres}" th:object="${genre}">
+                <td th:text="*{id}"/>
+                <td th:text="*{name}"/>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
