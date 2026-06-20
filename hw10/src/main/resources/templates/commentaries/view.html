@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>View commentary</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+    <script th:src="@{/js/error-handler.js}"></script>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div id='main' class="main"></div>
+
+<script>
+    function loadCommentary() {
+        const commentaryId = location.pathname.split('/')[2];
+        fetch(`/api/commentaries/${commentaryId}`)
+            .then(response => {
+                if (response.status === 404) {
+                    throw new Error(`Commentary with id ${commentaryId} not found`);
+                }
+
+                return response.json();
+            })
+            .then(commentary => {
+                document.getElementById('main').innerHTML = `
+                        <h1>Commentary info:</h1>
+                        <p><strong>Id:</strong> ${commentary.id}</p>
+                        <p><strong>Text:</strong> ${commentary.text}</p>
+                        <p><strong>Book:</strong> ${commentary.book.title}</p>
+                        <p><strong>Author:</strong> ${commentary.book.author.fullName}</p>
+                        <p><strong>Genres:</strong>
+                            <ul>
+                                ${commentary.book.genres.map(genre => `<li>${genre.name}</li>`).join('')}
+                            </ul>
+                        </p>
+                         <p>
+                             <a class="btn-blue" href="/books/${commentary.book.id}/commentaries">
+                                Back to commentaries
+                             </a>
+                         </p>
+
+                    `;
+            })
+            .catch(error => {
+                show404Error('main', error.message);
+            });
+    }
+
+    loadCommentary();
+</script>
+</body>
+</html>

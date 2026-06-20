@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all authors</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="main">
+        <h1>Authors</h1>
+        <table>
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Full name</th>
+            </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function loadAuthors() {
+            fetch('/api/authors')
+                .then(response => response.json())
+                .then(authors => {
+                   const tbody = document.getElementById('tbody');
+                    tbody.innerHTML = authors.map(author => `
+                        <tr>
+                            <td>${author.id}</td>
+                            <td>${author.fullName}</td>
+                        </tr>
+                    `).join('');
+                });
+        }
+
+        loadAuthors();
+    </script>
+</body>
+</html>

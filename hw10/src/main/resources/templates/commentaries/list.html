@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all commentaries</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="main">
+        <h1>Commentaries</h1>
+        <p><a class="btn-blue" id="add-button">Add a new commentary</a></p>
+        <table>
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Text</th>
+                <th>Book</th>
+                <th>Author</th>
+                <th>Genres</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function loadPage() {
+            const bookId = location.pathname.split('/')[2];
+            document.getElementById('add-button').href = `/books/${bookId}/commentaries/add`;
+            loadCommentaries(bookId);
+        }
+
+        function loadCommentaries(bookId) {
+            fetch(`/api/books/${bookId}/commentaries`)
+                .then(response => response.json())
+                .then(commentaries => {
+                    const tbody = document.getElementById('tbody');
+                    tbody.innerHTML = commentaries.map(commentary => `
+                        <tr>
+                            <td>${commentary.id}</td>
+                            <td>${commentary.text}</td>
+                            <td>${commentary.book.title}</td>
+                            <td>${commentary.book.author.fullName}</td>
+                            <td>${commentary.book.genres.map(genre => genre.name).join(', ')}</td>
+                            <td>
+                                <a class="btn-blue" href="/commentaries/${commentary.id}/view">View</a>
+                                <a class="btn-blue" href="/commentaries/${commentary.id}/edit">Edit</a>
+                                <a class="btn-red" onclick="deleteCommentary(${commentary.id}, ${bookId})">Delete</a>
+                            </td>
+                        </tr>
+                    `).join('');
+                });
+        }
+
+        function deleteCommentary(id, bookId) {
+            if (confirm('Are you sure you want to delete this commentary?')) {
+                fetch(`/api/commentaries/${id}`, {method: 'DELETE'}).then(() => loadCommentaries(bookId))
+            }
+        }
+
+        loadPage();
+    </script>
+</body>
+</html>

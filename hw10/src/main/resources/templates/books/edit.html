@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title></title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+    <script th:src="@{/js/error-handler.js}"></script>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div id='main' class="main"></div>
+
+<script>
+    function initPage() {
+        const pathSegments = location.pathname.split('/');
+        const isAddBook = pathSegments[2] === 'add';
+        const bookId = isAddBook ? null : pathSegments[2];
+
+        loadData(isAddBook, bookId);
+    }
+
+    function loadData(isAddBook, bookId) {
+        Promise.all([
+            isAddBook ? Promise.resolve(null) : fetch(`/api/books/${bookId}`).then(response => {
+                if (response.status === 404) {
+                    throw new Error(`Book with id ${bookId} not found`);
+                }
+                return response.json();
+            }),
+            fetch("/api/authors").then(response => response.json()),
+            fetch("/api/genres").then(response => response.json())
+        ]).then(([book, authors, genres]) => {
+            const title = isAddBook ? 'Add book' : 'Edit book';
+            document.title = title;
+            const saveButtonText = isAddBook ? 'Add' : 'Edit';
+
+            const bookGenresIds = book ? book.genres.map(genre => genre.id) : [];
+
+            document.getElementById('main').innerHTML = `
+                <h1>${title}</h1>
+                <form id="form">
+                    <div class="row">
+                        <label for="title">Title</label>
+                        <input id="title" value="${book ? book.title : ''}" type="text"/>
+                    </div>
+                    <div class="errors" id="title-errors"></div>
+                    <div class="row">
+                        <label for="authorId">Author</label>
+                        <select id="authorId">
+                            ${authors.map(author => `
+                                <option value="${author.id}"${book && book.author.id === author.id ? 'selected' : ''}>
+                                    ${author.fullName}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    <div class="errors" id="authorId-errors"></div>
+                    <div class="row">
+                        <label for="genresIds">Genres</label>
+                        <select id="genresIds" multiple="multiple" size="${genres.size}">
+                            ${genres.map(genre => `
+                                <option value="${genre.id}"${bookGenresIds.includes(genre.id) ? 'selected' : ''}>
+                                    ${genre.name}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    <div class="errors" id="genresIds-errors"></div>
+                    <p>
+                        <button class="btn-blue" type="submit">${saveButtonText}</button>
+                        <a class="btn-blue" href="/books">Cancel</a>
+                        <div class="errors" id="save-book-errors"></div>
+                    </p>
+                </form>
+            `;
+
+            addFormEventListener(isAddBook, bookId);
+        }).catch(error => {
+            show404Error('main', error.message);
+        });
+    }
+
+    function addFormEventListener(isAddBook, bookId) {
+        document.getElementById('form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            document.querySelectorAll('[id$="-errors"]').forEach(element => {
+                element.textContent = '';
+            });
+
+            const bookFormDto = {
+                title: document.getElementById('title').value,
+                authorId: parseInt(document.getElementById('authorId').value),
+                genresIds: Array.from(document.getElementById('genresIds').selectedOptions)
+                    .map(option => parseInt(option.value))
+            };
+
+            const url = isAddBook ? '/api/books' : `/api/books/${bookId}`;
+            const method = isAddBook ? 'POST' : 'PUT';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bookFormDto)
+            }).then(response => {
+                if (response.ok) {
+                    location.href = "/books";
+                } else if (response.status === 400) {
+                    response.json().then(validationErrors => {
+                        Object.entries(validationErrors).forEach(([field, message]) => {
+                            const errorDiv = document.getElementById(field + '-errors');
+                            errorDiv.textContent = message;
+                        });
+                    });
+                } else if (response.status === 404) {
+                    response.json().then(errors => {
+                        const operation = isAddBook ? 'Add' : 'Edit';
+                        const errorMessage = Object.entries(errors).map(([key, value]) => value).join(', ');
+                        document.getElementById('save-book-errors').textContent =
+                            operation + ' book errors: ' + errorMessage;
+                    });
+                }
+            });
+        });
+    }
+
+    initPage();
+</script>
+</body>
+</html>
