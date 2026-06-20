@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Not found</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="center">
+        <div style="text-align: center;">
+            <div class="error-number">404</div>
+            <h3 th:text="${message}" style="margin-bottom: 20px;"></h3>
+            <a class="btn-blue" th:href="@{/}">Home</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${book.id} == 0 ? 'Add book' : 'Edit book'"></title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="main">
+        <h1 th:text="${book.id == 0 ? 'Add book' : 'Edit book'}"></h1>
+        <form th:action="${book.id == 0 ? '/books/add' : '/books/'+ book.id +'/edit'}" th:method="post"
+              th:object="${book}">
+            <div class="row">
+                <label for="title">Title</label>
+                <input id="title" type="text" th:field="*{title}"/>
+            </div>
+            <div class="errors" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+            <div class="row">
+                <label for="authorId">Author</label>
+                <select id="authorId" th:field="*{authorId}">
+                    <option th:each="author : ${authors}"
+                            th:value="${author.id}"
+                            th:text="${author.fullName}"/>
+                </select>
+            </div>
+            <div class="errors" th:if="${#fields.hasErrors('authorId')}" th:errors="*{authorId}"></div>
+            <div class="row">
+                <label for="genresIds">Genres</label>
+                <select id="genresIds" th:field="*{genresIds}" multiple="multiple" th:size="${genres.size()}">
+                    <option th:each="genre : ${genres}"
+                            th:value="${genre.id}"
+                            th:text="${genre.name}"/>
+                </select>
+            </div>
+            <div class="errors" th:if="${#fields.hasErrors('genresIds')}" th:errors="*{genresIds}"></div>
+            <p>
+                <button class="btn-blue" type="submit" th:text="${book.id == 0 ? 'Add' : 'Edit'}"/>
+                <a class="btn-blue" th:href="@{/books}">Cancel</a>
+            </p>
+        </form>
+    </div>
+</body>
+</html>
