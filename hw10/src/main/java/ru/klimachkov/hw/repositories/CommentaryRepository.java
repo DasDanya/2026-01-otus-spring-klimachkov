@@ -19,7 +19,4 @@ public interface CommentaryRepository extends CrudRepository<Commentary, Long> {
     @Override
     @Query("SELECT c FROM Commentary c LEFT JOIN FETCH c.book LEFT JOIN FETCH c.book.author WHERE c.id = :id")
     Optional<Commentary> findById(@Param("id") Long id);
-
-    @Query("SELECT c.book.id FROM Commentary c LEFT JOIN c.book WHERE c.id = :id")
-    Optional<Long> findBookIdById(@Param("id") Long id);
 }

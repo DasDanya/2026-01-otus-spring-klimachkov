@@ -14,15 +14,15 @@
     function initPage() {
         const pathSegments = location.pathname.split('/');
         const isAddCommentary = pathSegments[4] === 'add';
-        const bookId = isAddCommentary ? pathSegments[2] : null;
-        const commentaryId = isAddCommentary ? null : pathSegments[2];
+        const bookId = pathSegments[2];
+        const commentaryId = isAddCommentary ? null : pathSegments[4];
 
         loadData(isAddCommentary, bookId, commentaryId);
     }
 
     function loadData(isAddCommentary, bookId, commentaryId) {
         if (commentaryId) {
-            fetch(`/api/commentaries/${commentaryId}`)
+            fetch(`/api/books/${bookId}/commentaries/${commentaryId}`)
                 .then(response => {
                     if (response.status === 404) {
                         throw new Error(`Commentary with id ${commentaryId} not found`);
@@ -74,11 +74,11 @@
             });
 
             const commentaryFormDto = {
-                text: document.getElementById('text').value,
-                bookId: bookId
+                text: document.getElementById('text').value
             };
 
-            const url = isAddCommentary ? '/api/commentaries' : `/api/commentaries/${commentaryId}`;
+            const baseUrl = `/api/books/${bookId}/commentaries`;
+            const url = isAddCommentary ? baseUrl : baseUrl + '/' + commentaryId;
             const method = isAddCommentary ? 'POST' : 'PUT';
 
             fetch(url, {
@@ -93,9 +93,9 @@
                     location.href = `/books/${bookId}/commentaries`;
                 } else if (response.status === 400) {
                     response.json().then(validationErrors => {
-                        Object.entries(validationErrors).forEach(([field, message]) => {
-                            const errorDiv = document.getElementById(field + '-errors');
-                            errorDiv.textContent = message;
+                        validationErrors.errors.forEach(fieldError => {
+                            const errorDiv = document.getElementById(fieldError.field + '-errors');
+                            errorDiv.innerHTML = fieldError.errors.join('<br>');
                         });
                     });
                 } else if (response.status === 404) {

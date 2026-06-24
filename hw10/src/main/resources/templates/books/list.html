@@ -38,7 +38,7 @@
                             <td>${book.genres.map(genre => genre.name).join(', ')}</td>
                             <td>
                                 <a class="btn-blue" href="/books/${book.id}/commentaries">Commentaries</a>
-                                <a class="btn-blue" href="/books/${book.id}/view">View</a>
+                                <a class="btn-blue" href="/books/${book.id}">View</a>
                                 <a class="btn-blue" href="/books/${book.id}/edit">Edit</a>
                                 <a class="btn-red" onclick="deleteBook(${book.id})">Delete</a>
                             </td>

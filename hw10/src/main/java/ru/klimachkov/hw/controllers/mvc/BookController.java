@@ -13,7 +13,7 @@ public class BookController {
        return "books/list";
     }
 
-    @GetMapping("/{id}/view")
+    @GetMapping("/{id}")
     public String viewBook() {
         return "books/view";
     }
@@ -26,15 +26,5 @@ public class BookController {
     @GetMapping("/{id}/edit")
     public String editBook() {
         return "books/edit";
-    }
-
-    @GetMapping("/{bookId}/commentaries")
-    public String listCommentaries() {
-        return "commentaries/list";
-    }
-
-    @GetMapping("/{bookId}/commentaries/add")
-    public String addCommentary() {
-        return "commentaries/edit";
     }
 }

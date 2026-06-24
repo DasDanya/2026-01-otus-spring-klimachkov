@@ -12,11 +12,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import ru.klimachkov.hw.dto.AuthorDto;
 import ru.klimachkov.hw.dto.BookDto;
-import ru.klimachkov.hw.dto.CommentaryDto;
 import ru.klimachkov.hw.dto.GenreDto;
 import ru.klimachkov.hw.exceptions.EntityNotFoundException;
 import ru.klimachkov.hw.services.BookService;
-import ru.klimachkov.hw.services.CommentaryService;
 
 import java.util.Collections;
 import java.util.List;
@@ -57,9 +55,6 @@ public class BookRestControllerTest {
 
     @MockitoBean
     private BookService bookService;
-
-    @MockitoBean
-    private CommentaryService commentaryService;
 
     @DisplayName("GET /api/books должен вернуть непустой JSON с книгами")
     @Test
@@ -164,8 +159,10 @@ public class BookRestControllerTest {
                         .content(objectMapper.writeValueAsString(notValidRequestBody)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.title").exists())
-                .andExpect(jsonPath("$.genresIds").exists());
+                .andExpect(jsonPath("$.errors").exists())
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors[?(@.field == 'title')].errors").exists())
+                .andExpect(jsonPath("$.errors[?(@.field == 'genresIds')].errors").exists());
 
         verify(bookService, never()).insert(anyString(), anyLong(), anySet());
     }
@@ -211,8 +208,9 @@ public class BookRestControllerTest {
                         .content(objectMapper.writeValueAsString(notValidRequestBody)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.title").exists())
-                .andExpect(jsonPath("$.genresIds").exists());
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors[?(@.field == 'title')].errors").exists())
+                .andExpect(jsonPath("$.errors[?(@.field == 'genresIds')].errors").exists());
 
         verify(bookService, never()).update(anyLong(), anyString(), anyLong(), anySet());
     }
@@ -253,91 +251,6 @@ public class BookRestControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(bookService).deleteById(bookId);
-    }
-
-    @Test
-    @DisplayName("GET /api/books/{id}/commentaries должен вернуть непустой JSON с комментариями, " +
-            "содержащих информацию о книге")
-    void shouldReturnNonEmptyJsonWithCommentariesContainingInfoAboutBook() throws Exception {
-        BookDto book = generateBook();
-        List<CommentaryDto> commentaries = IntStream.range(1, 4)
-                .mapToObj(id -> new CommentaryDto(id, "Commentary_" + id, book))
-                .toList();
-
-        when(commentaryService.findByBookId(anyLong())).thenReturn(commentaries);
-
-        mockMvc.perform(get("/api/books/{id}/commentaries", book.getId()))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(commentaries.size())))
-                .andExpectAll(
-                        IntStream.range(0, commentaries.size())
-                            .mapToObj(i -> JsonMatchers.getCommentaryJsonMatchersStream(
-                                    commentaries.get(i), "[%d]".formatted(i), true)
-                            )
-                            .flatMap(Function.identity())
-                            .toArray(ResultMatcher[]::new)
-                );
-
-        verify(commentaryService).findByBookId(book.getId());
-    }
-
-    @DisplayName("GET /api/books/{id}/commentaries должен вернуть пустой JSON с комментариями книги")
-    @Test
-    void shouldReturnEmptyJsonWithoutBookCommentaries() throws Exception {
-        when(commentaryService.findByBookId(anyLong())).thenReturn(Collections.emptyList());
-
-        long nonExistentBookId = 0L;
-
-        mockMvc.perform(get("/api/books/{id}/commentaries", nonExistentBookId))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(0)));
-
-        verify(commentaryService).findByBookId(nonExistentBookId);
-    }
-
-    @Test
-    @DisplayName("GET /api/books/{id}/commentaries/only должен вернуть непустой JSON с комментариями, " +
-            "не содержащих информацию о книге")
-    void shouldReturnNonEmptyJsonWithCommentariesNotContainingInfoAboutBook() throws Exception {
-               List<CommentaryDto> commentaries = IntStream.range(1, 4)
-                .mapToObj(id -> new CommentaryDto(id, "Commentary_" + id))
-                .toList();
-
-        when(commentaryService.findByBookIdWithoutFetch(anyLong())).thenReturn(commentaries);
-
-        long bookId = 1L;
-
-        mockMvc.perform(get("/api/books/{id}/commentaries/only", bookId))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(commentaries.size())))
-                .andExpectAll(
-                        IntStream.range(0, commentaries.size())
-                            .mapToObj(i -> JsonMatchers.getCommentaryJsonMatchersStream(
-                                    commentaries.get(i), "[%d]".formatted(i), false)
-                            )
-                            .flatMap(Function.identity())
-                            .toArray(ResultMatcher[]::new)
-                );
-
-        verify(commentaryService).findByBookIdWithoutFetch(bookId);
-    }
-
-    @DisplayName("GET /api/books/{id}/commentaries/only должен вернуть пустой JSON с комментариями книги")
-    @Test
-    void shouldReturnEmptyJsonWithoutBookCommentariesOnly() throws Exception {
-        when(commentaryService.findByBookIdWithoutFetch(anyLong())).thenReturn(Collections.emptyList());
-
-        long nonExistentBookId = 0L;
-
-        mockMvc.perform(get("/api/books/{id}/commentaries/only", nonExistentBookId))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(0)));
-
-        verify(commentaryService).findByBookIdWithoutFetch(nonExistentBookId);
     }
 
     private BookDto generateBook() {

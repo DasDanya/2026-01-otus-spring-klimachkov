@@ -45,18 +45,19 @@
                             <td>${commentary.book.author.fullName}</td>
                             <td>${commentary.book.genres.map(genre => genre.name).join(', ')}</td>
                             <td>
-                                <a class="btn-blue" href="/commentaries/${commentary.id}/view">View</a>
-                                <a class="btn-blue" href="/commentaries/${commentary.id}/edit">Edit</a>
-                                <a class="btn-red" onclick="deleteCommentary(${commentary.id}, ${bookId})">Delete</a>
+                                <a class="btn-blue" href="/books/${bookId}/commentaries/${commentary.id}">View</a>
+                                <a class="btn-blue" href="/books/${bookId}/commentaries/${commentary.id}/edit">Edit</a>
+                                <a class="btn-red" onclick="deleteCommentary(${bookId}, ${commentary.id})">Delete</a>
                             </td>
                         </tr>
                     `).join('');
                 });
         }
 
-        function deleteCommentary(id, bookId) {
+        function deleteCommentary(bookId, id) {
             if (confirm('Are you sure you want to delete this commentary?')) {
-                fetch(`/api/commentaries/${id}`, {method: 'DELETE'}).then(() => loadCommentaries(bookId))
+                fetch(`/api/books/${bookId}/commentaries/${id}`, {method: 'DELETE'})
+                    .then(() => loadCommentaries(bookId))
             }
         }
 

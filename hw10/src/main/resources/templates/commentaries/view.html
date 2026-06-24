@@ -11,8 +11,10 @@
 
 <script>
     function loadCommentary() {
-        const commentaryId = location.pathname.split('/')[2];
-        fetch(`/api/commentaries/${commentaryId}`)
+        const pathSegments = location.pathname.split('/');
+        const bookId = pathSegments[2];
+        const commentaryId = pathSegments[4];
+        fetch(`/api/books/${bookId}/commentaries/${commentaryId}`)
             .then(response => {
                 if (response.status === 404) {
                     throw new Error(`Commentary with id ${commentaryId} not found`);
@@ -33,7 +35,7 @@
                             </ul>
                         </p>
                          <p>
-                             <a class="btn-blue" href="/books/${commentary.book.id}/commentaries">
+                             <a class="btn-blue" href="/books/${bookId}/commentaries">
                                 Back to commentaries
                              </a>
                          </p>

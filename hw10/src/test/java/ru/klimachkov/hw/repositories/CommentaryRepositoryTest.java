@@ -86,17 +86,6 @@ public class CommentaryRepositoryTest {
                 .isEqualTo(expectedCommentary);
     }
 
-    @DisplayName("Должен загрузить id книги определенного комментария")
-    @Test
-    void shouldReturnBookIdByCommentaryId() {
-        Commentary commentary = commentaries.get(0);
-
-        assertThat(commentaryRepository.findBookIdById(commentary.getId()))
-                .isPresent()
-                .get()
-                .isEqualTo(commentary.getBook().getId());
-    }
-
     @DisplayName("Должен сохранить новый комментарий")
     @Test
     void shouldSaveNewCommentary() {

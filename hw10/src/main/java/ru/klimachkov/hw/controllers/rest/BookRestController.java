@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.klimachkov.hw.dto.BookDto;
 import ru.klimachkov.hw.dto.BookFormDto;
-import ru.klimachkov.hw.dto.CommentaryDto;
 import ru.klimachkov.hw.exceptions.EntityNotFoundException;
 import ru.klimachkov.hw.services.BookService;
-import ru.klimachkov.hw.services.CommentaryService;
 
 import java.util.List;
 
@@ -27,8 +25,6 @@ import java.util.List;
 public class BookRestController {
 
     private final BookService bookService;
-
-    private final CommentaryService commentaryService;
 
     @GetMapping
     public List<BookDto> listBooks() {
@@ -56,15 +52,5 @@ public class BookRestController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBook(@PathVariable long id) {
         bookService.deleteById(id);
-    }
-
-    @GetMapping("/{id}/commentaries")
-    public List<CommentaryDto> listCommentaries(@PathVariable long id) {
-        return commentaryService.findByBookId(id);
-    }
-
-    @GetMapping("/{id}/commentaries/only")
-    public List<CommentaryDto> listCommentariesOnly(@PathVariable long id) {
-        return commentaryService.findByBookIdWithoutFetch(id);
     }
 }

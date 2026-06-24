@@ -109,9 +109,9 @@
                     location.href = "/books";
                 } else if (response.status === 400) {
                     response.json().then(validationErrors => {
-                        Object.entries(validationErrors).forEach(([field, message]) => {
-                            const errorDiv = document.getElementById(field + '-errors');
-                            errorDiv.textContent = message;
+                        validationErrors.errors.forEach(fieldError => {
+                            const errorDiv = document.getElementById(fieldError.field + '-errors');
+                            errorDiv.innerHTML = fieldError.errors.join('<br>');
                         });
                     });
                 } else if (response.status === 404) {
