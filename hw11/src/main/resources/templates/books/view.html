@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>View book</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+    <script th:src="@{/js/error-handler.js}"></script>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div id="main" class="main"></div>
+
+    <script>
+        function loadBook() {
+            const bookId = location.pathname.split('/')[2];
+            Promise.all([
+                fetch(`/api/books/${bookId}`).then(response => {
+                    if (response.status === 404) {
+                        throw new Error(`Book with id ${bookId} not found`);
+                    }
+
+                    return response.json();
+                }),
+                fetch(`/api/books/${bookId}/commentaries/only`).then(response => response.json())
+            ]).then(([book, commentaries]) => {
+                document.getElementById('main').innerHTML = `
+                    <h1>Book info:</h1>
+                    <p><strong>Id:</strong> ${book.id}</p>
+                    <p><strong>Title:</strong> ${book.title}</p>
+                    <p><strong>Author:</strong> ${book.author.fullName}</p>
+                    <p><strong>Genres:</strong>
+                        <ul>
+                            ${book.genres.map(genre => `<li>${genre.name}</li>`).join('')}
+                        </ul>
+                    </p>
+                     <p><strong>Commentaries:</strong>
+                        <ul>
+                            ${commentaries.map(commentary => `<li>${commentary.text}</li>`).join('')}
+                        </ul>
+                    </p>
+                    <p><a class="btn-blue" href="/books">Back to books</a></p>
+                `;
+            }).catch(error => {
+                show404Error('main', error.message);
+            });
+        }
+
+        loadBook();
+    </script>
+</body>
+</html>

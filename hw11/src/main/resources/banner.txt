@@ -1,0 +1,8 @@
+${AnsiColor.GREEN}
+ooooo ooooo oooo     oooo  oo    oo
+ 888   888   88   88  88 o888  o888
+ 888ooo888    88 888 88   888   888
+ 888   888     888 888    888   888
+o888o o888o     8   8    o888o o888o
+${AnsiColor.MAGENTA}Application: ${spring.application.name} ${spring.application.version}
+${AnsiColor.YELLOW}Powered by Spring Boot ${spring-boot.version}

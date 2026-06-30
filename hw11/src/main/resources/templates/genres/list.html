@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all genres</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="main">
+    <h1>Genres</h1>
+        <table>
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+            </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function loadGenres() {
+            fetch('/api/genres')
+                .then(response => response.json())
+                .then(genres => {
+                    const tbody = document.getElementById('tbody');
+                    tbody.innerHTML = genres.map(genre => `
+                        <tr>
+                            <td>${genre.id}</td>
+                            <td>${genre.name}</td>
+                        </tr>
+                    `).join('');
+                });
+        }
+
+        loadGenres();
+    </script>
+</body>
+</html>

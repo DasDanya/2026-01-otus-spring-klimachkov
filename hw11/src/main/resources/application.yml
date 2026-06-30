@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: Homework 11
+    version: 1.0
+  r2dbc:
+    url: r2dbc:h2:mem:///maindb
+  sql:
+    init:
+      mode: always
