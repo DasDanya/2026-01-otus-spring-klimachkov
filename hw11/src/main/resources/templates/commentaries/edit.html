@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title></title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+    <script th:src="@{/js/error-handler.js}"></script>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div id="main" class="main"></div>
+
+<script>
+    function initPage() {
+        const pathSegments = location.pathname.split('/');
+        const isAddCommentary = pathSegments[4] === 'add';
+        const bookId = pathSegments[2];
+        const commentaryId = isAddCommentary ? null : pathSegments[4];
+
+        loadData(isAddCommentary, bookId, commentaryId);
+    }
+
+    function loadData(isAddCommentary, bookId, commentaryId) {
+        if (commentaryId) {
+            fetch(`/api/books/${bookId}/commentaries/${commentaryId}`)
+                .then(response => {
+                    if (response.status === 404) {
+                        throw new Error(`Commentary with id ${commentaryId} not found`);
+                    }
+
+                    return response.json();
+                })
+                .then(commentary => {
+                    renderPage(isAddCommentary, commentary.book.id, commentaryId);
+                    document.getElementById('text').value = commentary.text;
+                })
+                .catch(error => {
+                    show404Error('main', error.message);
+                });
+        } else {
+            renderPage(isAddCommentary, bookId, commentaryId);
+        }
+    }
+
+    function renderPage(isAddCommentary, bookId, commentaryId) {
+        const title = isAddCommentary ? 'Add commentary' : 'Edit commentary';
+        const saveButtonText = isAddCommentary ? 'Add' : 'Edit';
+        document.title = title;
+
+        document.getElementById('main').innerHTML = `
+            <h1>${title}</h1>
+            <form id="form">
+                <div class="row">
+                    <label for="text">Text</label>
+                    <input id="text" type="text"/>
+                </div>
+                <div class="errors" id="text-errors"></div>
+                <p>
+                    <button class="btn-blue" type="submit">${saveButtonText}</button>
+                    <a class="btn-blue" href="/books/${bookId}/commentaries">Cancel</a>
+                    <div class="errors" id="save-commentary-errors"></div>
+                </p>
+            </form>
+        `;
+
+        addFormEventListener(isAddCommentary, bookId, commentaryId);
+    }
+
+    function addFormEventListener(isAddCommentary, bookId, commentaryId) {
+        document.getElementById('form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            document.querySelectorAll('[id$="-errors"]').forEach(element => {
+                element.textContent = '';
+            });
+
+            const commentaryFormDto = {
+                text: document.getElementById('text').value
+            };
+
+            const baseUrl = `/api/books/${bookId}/commentaries`;
+            const url = isAddCommentary ? baseUrl : baseUrl + '/' + commentaryId;
+            const method = isAddCommentary ? 'POST' : 'PUT';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(commentaryFormDto)
+            }).then(response => {
+                if (response.ok) {
+                    location.href = `/books/${bookId}/commentaries`;
+                } else if (response.status === 400) {
+                    response.json().then(validationErrors => {
+                        validationErrors.errors.forEach(fieldError => {
+                            const errorDiv = document.getElementById(fieldError.field + '-errors');
+                            errorDiv.innerHTML = fieldError.errors.join('<br>');
+                        });
+                    });
+                } else if (response.status === 404) {
+                    response.json().then(errors => {
+                        const operation = isAddCommentary ? 'Add' : 'Edit';
+                        const errorMessage = Object.entries(errors).map(([key, value]) => value).join(', ');
+                        document.getElementById('save-commentary-errors').textContent =
+                            operation + ' commentary errors: ' + errorMessage;
+                    });
+                }
+            });
+        });
+    }
+
+    initPage();
+</script>
+</body>
+</html>
