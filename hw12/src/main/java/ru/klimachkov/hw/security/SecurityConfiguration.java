@@ -18,11 +18,11 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/books/add").hasAuthority("ADMIN")
-                            .requestMatchers("/books/{id}/edit").hasAuthority("ADMIN")
-                            .requestMatchers("/books/{id}/delete").hasAuthority("ADMIN")
-                            .requestMatchers("/books/{bookId}/commentaries/{id}/edit").hasAuthority("ADMIN")
-                            .requestMatchers("/books/{bookId}/commentaries/{id}/delete").hasAuthority("ADMIN")
+                        authorize.requestMatchers("/books/add").hasAuthority("ROLE_ADMIN")
+                            .requestMatchers("/books/{id}/edit").hasAuthority("ROLE_ADMIN")
+                            .requestMatchers("/books/{id}/delete").hasAuthority("ROLE_ADMIN")
+                            .requestMatchers("/books/{bookId}/commentaries/{id}/edit").hasAuthority("ROLE_ADMIN")
+                            .requestMatchers("/books/{bookId}/commentaries/{id}/delete").hasAuthority("ROLE_ADMIN")
                             .anyRequest().authenticated()
                 )
                 .exceptionHandling(ehc -> ehc.accessDeniedHandler(globalAccessDeniedHandler))

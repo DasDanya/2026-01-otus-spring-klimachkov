@@ -248,7 +248,7 @@ public class SecurityIntegrationTest {
     }
 
     @DisplayName("Админ должен получить доступ ко всем страницам")
-    @WithMockUser(authorities = "ADMIN")
+    @WithMockUser(authorities = "ROLE_ADMIN")
     @ParameterizedTest
     @ValueSource(strings = {
             "/authors",
@@ -272,7 +272,7 @@ public class SecurityIntegrationTest {
     private void mockLoadUserByUsername() {
         UserDetails user = User.withUsername("user")
                 .password("{noop}password")
-                .authorities("USER")
+                .authorities("ROLE_USER")
                 .build();
 
         when(userDetailsService.loadUserByUsername(anyString())).thenReturn(user);

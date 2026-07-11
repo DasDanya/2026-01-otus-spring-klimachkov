@@ -41,14 +41,14 @@
                            th:href="@{/books/{bookId}/commentaries/{id}(bookId=${bookId}, id=${commentary.id})}">View
                         </a>
                     </span>
-                    <span sec:authorize="hasAuthority('ADMIN')"><a class="btn-blue"
+                    <span sec:authorize="hasAuthority('ROLE_ADMIN')"><a class="btn-blue"
                              th:href="@{/books/{bookId}/commentaries/{id}/edit(bookId=${bookId}, id=${commentary.id})}">Edit
                     </a></span>
                     <form class="inline-form"
                           th:action="@{/books/{bookId}/commentaries/{id}/delete(bookId=${bookId}, id=${commentary.id})}"
                           th:method="post"
                           onsubmit="return confirm('Are you sure you want to delete this commentary?');">
-                        <span sec:authorize="hasAuthority('ADMIN')">
+                        <span sec:authorize="hasAuthority('ROLE_ADMIN')">
                             <button class="btn-red" type="submit">Delete</button>
                         </span>
                     </form>

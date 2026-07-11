@@ -270,11 +270,10 @@ public class BookControllerTest {
     }
 
     private MockHttpServletRequestBuilder withAdminAuth(MockHttpServletRequestBuilder requestBuilder) {
-        return requestBuilder.with(user("admin").authorities(new SimpleGrantedAuthority("ADMIN")));
+        return requestBuilder.with(user("admin").authorities(new SimpleGrantedAuthority("ROLE_ADMIN")));
     }
 
     private MockHttpServletRequestBuilder withAdminAuthAndCsrf(MockHttpServletRequestBuilder requestBuilder) {
-        return requestBuilder.with(user("admin").authorities(new SimpleGrantedAuthority("ADMIN")))
-                .with(csrf());
+        return withAdminAuth(requestBuilder).with(csrf());
     }
 }
