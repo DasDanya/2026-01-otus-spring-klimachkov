@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${commentary.id} == 0 ? 'Add commentary' : 'Edit commentary'"></title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="main">
+        <h1 th:text="${commentary.id == 0 ? 'Add commentary' : 'Edit commentary'}"></h1>
+        <form th:action="${commentary.id == 0
+                ? '/books/' + commentary.bookId + '/commentaries/add'
+                : '/books/' + commentary.bookId + '/commentaries/' + commentary.id + '/edit'}"
+              th:method="post" th:object="${commentary}">
+            <div class="row">
+                <label for="text">Text</label>
+                <input id="text" type="text" th:field="*{text}"/>
+            </div>
+            <div class="errors" th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></div>
+            <p>
+                <button class="btn-blue" type="submit" th:text="${commentary.id == 0 ? 'Add' : 'Edit'}"/>
+                <a class="btn-blue" th:href="@{/books/{bookId}/commentaries(bookId=${commentary.bookId})}">Cancel</a>
+            </p>
+        </form>
+    </div>
+</body>
+</html>
