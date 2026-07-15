@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>View commentary</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="main">
+        <h1>Commentary info:</h1>
+        <p><strong>Id:</strong> <span th:text="${commentary.id}"></span></p>
+        <p><strong>Text:</strong> <span th:text="${commentary.text}"></span></p>
+        <p><strong>Book:</strong> <span th:text="${commentary.book.title}"></span></p>
+        <p><strong>Author:</strong> <span th:text="${commentary.book.author.fullName}"></span></p>
+        <p><strong>Genres:</strong>
+            <ul>
+                <li th:each="genre : ${commentary.book.genres}" th:text="${genre.name}"></li>
+            </ul>
+        </p>
+        <p><a class="btn-blue"
+              th:href="@{/books/{bookId}/commentaries(bookId=${commentary.book.id})}">Back to commentaries</a></p>
+    </div>
+</body>
+</html>
