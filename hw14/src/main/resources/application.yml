@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: Homework 14
+    version: 1.0
+  datasource:
+    url: jdbc:h2:mem:maindb
+  sql:
+    init:
+      mode: always
+      data-locations: data.sql
+      schema-locations: schema.sql
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+  data:
+    mongodb:
+      port: 0
+      database: maindb
+  shell:
+    command:
+      version:
+        enabled: false
+    interactive:
+      enabled: true
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 7.0.15
+
+# Кастомные свойства для Spring Batch
+app:
+  batch:
+    chunk-size: 5
