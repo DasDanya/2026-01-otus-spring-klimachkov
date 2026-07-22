@@ -1,11 +1,14 @@
 package ru.klimachkov.hw.batch;
 
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,12 @@ public class MigrationLibraryJobTest {
     @Autowired
     private MongoOperations mongoOperations;
 
+    @BeforeEach
+    void cleanup() {
+        List.of(GenreDocument.class, AuthorDocument.class, BookDocument.class, CommentaryDocument.class)
+                .forEach(mongoOperations::dropCollection);
+    }
+
     @DisplayName("Должен мигрировать все сущности и сохранить связи между ними")
     @Test
     void shouldMigrateAllEntitiesAndPreserveRelations() throws Exception {
@@ -50,6 +59,55 @@ public class MigrationLibraryJobTest {
         assertThat(mongoOperations.count(new Query(), BookDocument.class)).isEqualTo(3);
         assertThat(mongoOperations.count(new Query(), CommentaryDocument.class)).isEqualTo(9);
 
+        assertPreserveRelations();
+    }
+
+    @DisplayName("Должен повторно выполнить миграцию c очисткой")
+    @Test
+    void shouldRerunMigrationWithCleanup() throws Exception {
+        rerunMigration(true);
+        assertPreserveRelations();
+    }
+
+    @DisplayName("Должен повторно выполнить миграцию без очистки (данные дублируются)")
+    @Test
+    void shouldRerunMigrationWithoutCleanup() throws Exception {
+        rerunMigration(false);
+    }
+
+    private void rerunMigration(boolean cleanup) throws Exception {
+        JobExecution firstExecution = jobLauncherTestUtils.launchJob();
+        assertThat(firstExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+
+        long countAuthorsBeforeRerun = mongoOperations.count(new Query(), AuthorDocument.class);
+        long countGenresBeforeRerun = mongoOperations.count(new Query(), GenreDocument.class);
+        long countBooksBeforeRerun = mongoOperations.count(new Query(), BookDocument.class);
+        long countCommentariesBeforeRerun = mongoOperations.count(new Query(), CommentaryDocument.class);
+
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addLong("run.id", System.currentTimeMillis())
+                .addString(CleanupDecider.CLEANUP_PARAMETER, String.valueOf(cleanup))
+                .toJobParameters();
+
+        JobExecution secondExecution = jobLauncherTestUtils.launchJob(jobParameters);
+        assertThat(secondExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+
+        int expectedCountMultiplier = cleanup ? 1 : 2;
+
+        assertThat(mongoOperations.count(new Query(), AuthorDocument.class))
+                .isEqualTo(countAuthorsBeforeRerun * expectedCountMultiplier);
+
+        assertThat(mongoOperations.count(new Query(), GenreDocument.class))
+                .isEqualTo(countGenresBeforeRerun * expectedCountMultiplier);
+
+        assertThat(mongoOperations.count(new Query(), BookDocument.class))
+                .isEqualTo(countBooksBeforeRerun * expectedCountMultiplier);
+
+        assertThat(mongoOperations.count(new Query(), CommentaryDocument.class))
+                .isEqualTo(countCommentariesBeforeRerun * expectedCountMultiplier);
+    }
+
+    private void assertPreserveRelations() {
         assertPreserveRelations(
                 "BookTitle_1", "Author_1",
                 List.of("Genre_1", "Genre_2"), List.of("Commentary_1", "Commentary_2", "Commentary_3")
@@ -100,5 +158,4 @@ public class MigrationLibraryJobTest {
                     assertThat(commentary.getText()).isIn(commentariesTexts);
                 });
     }
-
 }
