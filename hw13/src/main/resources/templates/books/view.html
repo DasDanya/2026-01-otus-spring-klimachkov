@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>View book</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div class="main">
+        <h1>Book info:</h1>
+        <p><strong>Id:</strong> <span th:text="${book.id}"></span></p>
+        <p><strong>Title:</strong> <span th:text="${book.title}"></span></p>
+        <p><strong>Author:</strong> <span th:text="${book.author.fullName}"></span></p>
+        <p><strong>Genres:</strong>
+            <ul>
+                <li th:each="genre : ${book.genres}" th:text="${genre.name}"></li>
+            </ul>
+        </p>
+        <p><strong>Commentaries:</strong>
+            <ul>
+                <li th:each="commentary : ${commentaries}" th:text="${commentary.text}"></li>
+            </ul>
+        </p>
+        <p><a class="btn-blue" th:href="@{/books}">Back to books</a></p>
+    </div>
+</body>
+</html>
