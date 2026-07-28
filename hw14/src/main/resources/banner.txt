@@ -1,0 +1,10 @@
+${AnsiColor.GREEN}
+oo____oo_oo____oo____oo___oo_______ooo_
+oo____oo_oo____oo____oo_oooo_____oo_oo_
+oo____oo_oo____oo____oo___oo___oo___oo_
+oooooooo__oo__oooo__oo____oo__oooooooo_
+oo____oo___oooo__oooo_____oo________oo_
+oo____oo____oo____oo____ooooo_______oo_
+_______________________________________
+${AnsiColor.MAGENTA}Application: ${spring.application.name} ${spring.application.version}
+${AnsiColor.YELLOW}Powered by Spring Boot ${spring-boot.version}
