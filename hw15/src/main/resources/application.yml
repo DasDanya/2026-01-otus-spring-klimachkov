@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: Homework 15
+    version: 1.0
+logging:
+  level:
+    ru.klimachkov.hw: INFO
