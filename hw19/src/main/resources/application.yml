@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: Workplaces
+    version: 1.0
+  datasource:
+    url: jdbc:h2:mem:klimachkov_workplaces
+  sql:
+    init:
+      mode: always
+  jpa:
+    open-in-view: false
+    show-sql: true
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+  messages:
+    basename: messages/messages
+app:
+  datetime-format: dd.MM.yyyy HH:mm
+  jwt:
+    secret: 3JmFzZxdKiMtkcoMMojOyP41B3n4XcL4xhihCrzhwim
+    access-token-expiration: 1800000
+    refresh-token-expiration: 1296000000
+    refresh-cookie-max-age: 604800
+    refresh-cookie-path: /api/auth
